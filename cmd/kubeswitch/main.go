@@ -2,12 +2,16 @@ package main
 
 import (
   "fmt"
-  "io"
   "net/http"
+  "io/ioutil"
+  "log"
+  /*
   "os"
+  "io"
   "path/filepath"
 	"regexp"
-	"strings"
+  "string"
+  */
 )
 
 func main() {
