@@ -7,12 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	/*
-		"io"
-		"path/filepath"
-		"regexp"
-		"string"
-	*/)
+)
 
 // Generated with https://mholt.github.io/json-to-go/
 type Releases []struct {
@@ -28,7 +23,6 @@ var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
 
 func main() {
 	versionWanted := os.Args[1]
-
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
 
 	if err != nil {
@@ -40,8 +34,6 @@ func main() {
 
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
-		return
-
 	}
 
 	result := string(body)
@@ -70,7 +62,6 @@ func getAllReleases() {
 }
 
 func getDownloadLocations(installDirectory string) {
-	// resp, err := http.Get(releaseURL)
-	// body, err := ioutil.ReadAll(resp.Body)
+	resp, err := http.Get(releaseURL)
 
 }
