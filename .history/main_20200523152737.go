@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	/*
+		"os"
 		"io"
 		"path/filepath"
 		"regexp"
@@ -17,17 +17,14 @@ import (
 // Generated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"tag_name"`
+	//	TarballURL string `json:"tarball_url"`
+	// ZipballURL string `json:"zipball_url"`
+	// //Body       string `json:"body"`
 }
 
-type DownloadURL []struct {
-	TarballURL string `json:"tarball_url"`
-	ZipballURL string `json:"zipball_url"`
-}
-
-var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+type DownloadURL
 
 func main() {
-	versionWanted := os.Args[1]
 
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
 
@@ -41,17 +38,16 @@ func main() {
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
 		return
-
 	}
 
 	result := string(body)
 	fmt.Println("Latest stable release is:" + " " + result)
 	getAllReleases()
-	fmt.Printf("Version selected for download is: %v\n", versionWanted)
-	fmt.Println("Downloading Kubernetes version....", versionWanted, "....to /usr/bin/kubectl")
 }
 
 func getAllReleases() {
+	releaseURL := "https://api.github.com/repos/kubernetes/kubernetes/releases"
+
 	resp, err := http.Get(releaseURL)
 
 	if err != nil {
@@ -69,8 +65,3 @@ func getAllReleases() {
 	fmt.Printf("Other releases available are: %v\n", data)
 }
 
-func getDownloadLocations(installDirectory string) {
-	// resp, err := http.Get(releaseURL)
-	// body, err := ioutil.ReadAll(resp.Body)
-
-}

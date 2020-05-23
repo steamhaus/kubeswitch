@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	/*
+		"os"
 		"io"
 		"path/filepath"
 		"regexp"
@@ -24,10 +24,7 @@ type DownloadURL []struct {
 	ZipballURL string `json:"zipball_url"`
 }
 
-var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-
 func main() {
-	versionWanted := os.Args[1]
 
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
 
@@ -41,17 +38,16 @@ func main() {
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
 		return
-
 	}
 
 	result := string(body)
 	fmt.Println("Latest stable release is:" + " " + result)
 	getAllReleases()
-	fmt.Printf("Version selected for download is: %v\n", versionWanted)
-	fmt.Println("Downloading Kubernetes version....", versionWanted, "....to /usr/bin/kubectl")
 }
 
 func getAllReleases() {
+	releaseURL := "https://api.github.com/repos/kubernetes/kubernetes/releases"
+
 	resp, err := http.Get(releaseURL)
 
 	if err != nil {
@@ -67,10 +63,4 @@ func getAllReleases() {
 
 	//TODO: Work out how we can format this list better wit a new line after each result
 	fmt.Printf("Other releases available are: %v\n", data)
-}
-
-func getDownloadLocations(installDirectory string) {
-	// resp, err := http.Get(releaseURL)
-	// body, err := ioutil.ReadAll(resp.Body)
-
 }

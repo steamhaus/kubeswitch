@@ -47,6 +47,7 @@ func main() {
 	result := string(body)
 	fmt.Println("Latest stable release is:" + " " + result)
 	getAllReleases()
+	fmt.Println(args)
 	fmt.Printf("Version selected for download is: %v\n", versionWanted)
 	fmt.Println("Downloading Kubernetes version....", versionWanted, "....to /usr/bin/kubectl")
 }

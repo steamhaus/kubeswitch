@@ -27,6 +27,7 @@ type DownloadURL []struct {
 var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
 
 func main() {
+	args := os.Args
 	versionWanted := os.Args[1]
 
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
@@ -47,8 +48,9 @@ func main() {
 	result := string(body)
 	fmt.Println("Latest stable release is:" + " " + result)
 	getAllReleases()
+	fmt.Println(args)
 	fmt.Printf("Version selected for download is: %v\n", versionWanted)
-	fmt.Println("Downloading Kubernetes version....", versionWanted, "....to /usr/bin/kubectl")
+	fmt.Println("Download Kubernetes version", versionWanted, "to /usr/bin/kubectl")
 }
 
 func getAllReleases() {
