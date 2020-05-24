@@ -24,6 +24,10 @@ var binPathMac = "/bin/darwin/amd64/kubectl"
 func main() {
 	versionWanted := os.Args[1]
 
+	if len(os.Args) < 1 {
+		fmt.Println("No version specified, downloading latest to be safe")
+	}
+
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
 
 	if err != nil {
@@ -80,7 +84,7 @@ func downloadFile(installDirectory string, versionWanted string) {
 	defer resp.Body.Close()
 
 	n, err := io.Copy(out, resp.Body)
-	err = os.Chmod("kubectl", 0777)
+	err = os.Chmod("kubectl", 755)
 	if err != nil {
 		fmt.Println(err, n)
 	}
