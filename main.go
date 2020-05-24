@@ -16,8 +16,10 @@ type Releases []struct {
 }
 
 var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-var tarballURL = "https://api.github.com/repos/kubernetes/kubernetes/tarball"
+var downloadURL = "https://storage.googleapis.com/kubernetes-release/release/"
 var installLocation = "/usr/local/bin/kubectl"
+var binPathLinux = "/bin/linux/amd64/kubectl"
+var binPathMac = "/bin/darwin/amd64/kubectl"
 
 func main() {
 	versionWanted := os.Args[1]
@@ -65,20 +67,27 @@ func getAllReleases() {
 }
 
 func downloadFile(installDirectory string, versionWanted string) {
-	resp, err := http.Get(tarballURL + "/" + versionWanted)
+	resp, err := http.Get(downloadURL + versionWanted + binPathMac)
 
-	if err != nil {
-		fmt.Println("Broken TarBall path - did you select a valid version?", err, http.StatusInternalServerError)
-	}
+	fmt.Println(downloadURL + versionWanted + binPathMac)
 
-	out, err := os.Create(installDirectory)
-	if err != nil {
-		fmt.Println("Cannot create file location for kubectl", err)
-	}
-
-	_, err = io.Copy(out, resp.Body)
-
+	out, err := os.Create("kubectl")
 	defer out.Close()
-	fmt.Println(_)
+
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	n, err := io.Copy(out, resp.Body)
+	err = os.Chmod("kubectl", 0777)
+	if err != nil {
+		fmt.Println(err, n)
+	}
+
+	x := os.Rename("kubectl", installLocation)
+	if x != nil {
+		fmt.Println(x)
+	}
 
 }
