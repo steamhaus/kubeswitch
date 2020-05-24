@@ -15,11 +15,6 @@ type Releases []struct {
 	TagName string `json:"tag_name"`
 }
 
-type DownloadURL []struct {
-	TarballURL string `json:"tarball_url"`
-	ZipballURL string `json:"zipball_url"`
-}
-
 var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
 var tarballURL = "https://api.github.com/repos/kubernetes/kubernetes/tarball"
 var installLocation = "/usr/local/bin/kubectl"
