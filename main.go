@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,7 +11,7 @@ import (
 	"os"
 )
 
-// Generated with https://mholt.github.io/json-to-go/
+//Generated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"tag_name"`
 }
@@ -22,10 +23,13 @@ var binPathLinux = "/bin/linux/amd64/kubectl"
 var binPathMac = "/bin/darwin/amd64/kubectl"
 
 func main() {
+	var yes = flag.Var("yes", "Confirm installation")
+	var no = flag.Var("no", "Confirm installation")
+
 	versionWanted := os.Args[1]
 
-	if len(os.Args) < 1 {
-		fmt.Println("No version specified, downloading latest to be safe")
+	if len(os.Args) < 2 {
+		fmt.Println("No version specified, downloading latest to be safe", )
 	}
 
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
