@@ -45,9 +45,8 @@ func main() {
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
 		fmt.Println("Downloading Kubernetes version: " + " " + result + " " + "to" + " " + installLocation)
-		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
-		downloadFile(installLocation, strings.TrimRight(result, "\n"))
-
+		fmt.Println(downloadURL + versionWanted + binPathMac)
+		downloadFile(installLocation, result)
 		fmt.Println("version" + " " + result + "has been installed")
 		os.Exit(1)
 	} else {

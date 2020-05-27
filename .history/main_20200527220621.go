@@ -44,13 +44,12 @@ func main() {
 	text, _ := reader.ReadString('\n')
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
-		fmt.Println("Downloading Kubernetes version: " + " " + result + " " + "to" + " " + installLocation)
-		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
-		downloadFile(installLocation, strings.TrimRight(result, "\n"))
-
+		fmt.Println("Downloading Kubernetes version:" + " " + string(result) + " " + "to" + installLocation)
+		downloadFile(installLocation, result)
 		fmt.Println("version" + " " + result + "has been installed")
 		os.Exit(1)
 	} else {
+		fmt.Printf("Other versions available for download are: \n")
 		getAllReleases()
 		// downloadFile(installLocation, versionWanted)
 		// fmt.Println("Downloading Kubernetes version....", versionWanted, "....to", installLocation)
@@ -76,18 +75,16 @@ func getAllReleases() {
 	defer resp.Body.Close()
 }
 
-func downloadFile(installDirectory string, versionWanted string) {
-	resp, err := http.Get(downloadURL + versionWanted + binPathMac)
+func downloadFile(installDirectory string, result string) {
+	resp, err := http.Get(downloadURL + result + binPathMac)
 
 	fmt.Println(downloadURL + versionWanted + binPathMac)
 
 	out, err := os.Create("kubectl")
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-
-	fmt.Println(resp.Body)
 
 	n, err := io.Copy(out, resp.Body)
 	err = os.Chmod("kubectl", 755)

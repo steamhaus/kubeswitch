@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 //Generated with https://mholt.github.io/json-to-go/
@@ -27,11 +26,10 @@ func main() {
 	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
 
 	if err != nil {
-		fmt.Println("Cannot read latest stable version from remote repository", err)
+		fmt.Println("Cannot read from remote repository", err)
 	}
 
 	defer resp.Body.Close()
-
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -39,18 +37,16 @@ func main() {
 	}
 
 	result := string(body)
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Latest stable release is:" + " " + result + "" + "Do you want to install this version?")
+	fmt.Println("Latest stable release is:" + " " + result + " " + "Do you want to install this version?")
 	text, _ := reader.ReadString('\n')
 
-	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
-		fmt.Println("Downloading Kubernetes version: " + " " + result + " " + "to" + " " + installLocation)
-		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
-		downloadFile(installLocation, strings.TrimRight(result, "\n"))
-
+	if (text == "yes") {
+		fmt.Println("Downloading Kubernetes version....", result, "....to", installLocation)
+		downloadFile(installLocation, result)
 		fmt.Println("version" + " " + result + "has been installed")
 		os.Exit(1)
 	} else {
+		fmt.Printf("Other versions available for download are: \n")
 		getAllReleases()
 		// downloadFile(installLocation, versionWanted)
 		// fmt.Println("Downloading Kubernetes version....", versionWanted, "....to", installLocation)
@@ -82,12 +78,12 @@ func downloadFile(installDirectory string, versionWanted string) {
 	fmt.Println(downloadURL + versionWanted + binPathMac)
 
 	out, err := os.Create("kubectl")
+	defer out.Close()
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-
-	fmt.Println(resp.Body)
+	defer resp.Body.Close()
 
 	n, err := io.Copy(out, resp.Body)
 	err = os.Chmod("kubectl", 755)
@@ -99,7 +95,5 @@ func downloadFile(installDirectory string, versionWanted string) {
 	if x != nil {
 		fmt.Println(x)
 	}
-	defer out.Close()
-	defer resp.Body.Close()
 
 }
