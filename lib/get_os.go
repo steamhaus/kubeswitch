@@ -5,17 +5,16 @@ import (
 )
 
 type GoInfoObject struct {
-	GoOS string
-	Kernel string
-	Core string
+	GoOS     string
+	Kernel   string
+	Core     string
 	Platform string
-	OS string
+	OS       string
 	Hostname string
-	CPUs int
+	CPUs     int
 }
 
 func main() {
 	gi := goInfo.GetInfo()
 	gi.VarDump()
-	}
 }
