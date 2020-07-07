@@ -9,7 +9,7 @@ type GoInfoObject struct {
 	OS     string
 }
 
-func getos() {
+func GetOS() {
 	gi := goInfo.GetInfo()
 	gi.VarDump()
 }
