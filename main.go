@@ -10,21 +10,32 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/matishsiao/goInfo"
 )
 
 //Generated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"tag_name"`
 }
+type GoInfoObject struct {
+	Kernel string
+	OS     string
+}
 
-var releaseURL = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-var downloadURL = "https://storage.googleapis.com/kubernetes-release/release/"
-var installLocation = "/usr/local/bin/kubectl"
-var binPathLinux = "/bin/linux/amd64/kubectl"
-var binPathMac = "/bin/darwin/amd64/kubectl"
+const (
+	stableURL       = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+	downloadURL     = "https://storage.googleapis.com/kubernetes-release/release/"
+	installLocation = "/usr/local/bin/kubectl"
+	binPathLinux    = "/bin/linux/amd64/kubectl"
+	binPathMac      = "/bin/darwin/amd64/kubectl"
+)
 
 func main() {
-	resp, err := http.Get("https://storage.googleapis.com/kubernetes-release/release/stable.txt")
+	gi := goInfo.GetInfo()
+	gi.VarDump()
+	resp, err := http.Get(stableURL)
 
 	if err != nil {
 		fmt.Println("Cannot read latest stable version from remote repository", err)
