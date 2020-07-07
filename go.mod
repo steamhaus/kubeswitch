@@ -1,4 +1,4 @@
-module lib/get_os.go
+module github.com/steamhaus/kubeswitch
 
 go 1.14
 

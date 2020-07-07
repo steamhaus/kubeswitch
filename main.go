@@ -10,17 +10,12 @@ import (
 	"net/http"
 	"os"
 	"strings"
-
-	"github.com/matishsiao/goInfo"
+	"github.com/steamhaus/kubeswitch/src/pkg/getos"
 )
 
 //Generated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"tag_name"`
-}
-type GoInfoObject struct {
-	Kernel string
-	OS     string
 }
 
 const (
@@ -33,8 +28,7 @@ const (
 )
 
 func main() {
-	gi := goInfo.GetInfo()
-	gi.VarDump()
+	//getos.getos()
 	resp, err := http.Get(stableURL)
 
 	if err != nil {
