@@ -28,7 +28,7 @@ const (
 )
 
 func main() {
-	getos.getos()
+	getos.GetOS()
 	resp, err := http.Get(stableURL)
 
 	if err != nil {
