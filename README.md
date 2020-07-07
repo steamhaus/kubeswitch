@@ -7,18 +7,12 @@
 ### Build/Run:
 
 ```
-$ go build main.go
+$ go build -o kubeswitch .
 
-$ mv main /usr/local/bin/kubeswitch
+$ chmod +x kubeswitch 
 
-$ kubeswitch
-  Do you want to install this version?
-  yes/no
-
-OR
-
-$ mv kubeswitch /usr/local/bin/
+$ mv kubeswitch $PATH
 
 ```
 
-##### *Currently only works on OSX however I'm working on the Linux implementation*
+##### *Linux support added, freebsd support can be added if needs be*
