@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
 	"github.com/steamhaus/kubeswitch/getos"
 )
 
@@ -57,7 +58,6 @@ func main() {
 		os.Exit(1)
 	} else {
 		getAllReleases()
-		fmt.Println("\n")
 		fmt.Println("Which version would you like to install?")
 		versionInput, _ := reader.ReadString('\n')
 		versionWanted := strings.TrimRight(versionInput, "\n")
