@@ -1,5 +1,7 @@
 # Kubernetes Version Switcher 
 
+![Go](https://github.com/steamhaus/kubeswitch/workflows/Go/badge.svg?branch=master)
+
 ## Easily switch kubectl binary versions.
 
 ### Build/Run:
