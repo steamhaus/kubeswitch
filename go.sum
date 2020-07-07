@@ -1,2 +1,4 @@
 github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288 h1:cdM7et8/VlNnSBpq3KbyQWsYLCY0WsB7tvV8Fr0DUNE=
 github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288/go.mod h1:yLZrFIhv+Z20hxHvcZpEyKVQp9HMsOJkXAxx7yDqtvg=
+github.com/steamhaus/kubeswitch v0.0.0-20200707065246-9940977ab9a3 h1:XIsKLWoJpD7C2zeK9aU4iP706p1PoR8sB7ynNEFBzcQ=
+github.com/steamhaus/kubeswitch v0.0.0-20200707065246-9940977ab9a3/go.mod h1:pkKWAi671ZRShLPe5I1tXpd140eoxraWFcr8PKr6OPY=

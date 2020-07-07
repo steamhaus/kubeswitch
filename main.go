@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"github.com/steamhaus/kubeswitch/src/pkg/getos"
+	"github.com/steamhaus/kubeswitch/getos"
 )
 
 //Generated with https://mholt.github.io/json-to-go/
@@ -28,7 +28,7 @@ const (
 )
 
 func main() {
-	//getos.getos()
+	getos.getos()
 	resp, err := http.Get(stableURL)
 
 	if err != nil {

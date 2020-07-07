@@ -1,4 +1,4 @@
-package kubeswitch
+package getos
 
 import (
 	"github.com/matishsiao/goInfo"
