@@ -9,9 +9,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
-
-	"github.com/steamhaus/kubeswitch/getos"
 )
 
 //Generated with https://mholt.github.io/json-to-go/
@@ -20,16 +19,17 @@ type Releases []struct {
 }
 
 const (
-	stableURL       = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
-	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-	downloadURL     = "https://storage.googleapis.com/kubernetes-release/release/"
-	installLocation = "/usr/local/bin/kubectl"
-	binPathLinux    = "/bin/linux/amd64/kubectl"
-	binPathMac      = "/bin/darwin/amd64/kubectl"
+	stableURL              = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+	releaseURL             = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+	downloadURL            = "https://storage.googleapis.com/kubernetes-release/release/"
+	installLocation        = "/usr/local/bin/kubectl"
+	binPathLinux           = "/bin/linux/amd64/kubectl"
+	binPathMac             = "/bin/darwin/amd64/kubectl"
+	GOOS            string = runtime.GOOS
 )
 
 func main() {
-	getos.GetOS()
+	fmt.Println("You're using OS: ", GOOS)
 	resp, err := http.Get(stableURL)
 
 	if err != nil {
@@ -86,9 +86,21 @@ func getAllReleases() {
 }
 
 func downloadFile(installDirectory string, versionWanted string) {
-	resp, err := http.Get(downloadURL + versionWanted + binPathMac)
+	var binPath string
 
-	fmt.Println(downloadURL + versionWanted + binPathMac)
+	if GOOS == "linux" {
+		binPath = binPathLinux
+	} else if GOOS == "darwin" {
+		binPath = binPathMac
+	} else {
+		os.Exit(0)
+	}
+
+	fmt.Println(binPath)
+
+	resp, err := http.Get(downloadURL + versionWanted + binPath)
+
+	fmt.Println(downloadURL + versionWanted + binPath)
 
 	out, err := os.Create("kubectl")
 

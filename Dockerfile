@@ -1,3 +1,2 @@
-FROM busybox
-
+FROM golang:latest
 
