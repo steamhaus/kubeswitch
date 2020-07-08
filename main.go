@@ -36,10 +36,10 @@ func checkOS() {
 
 	if GOOS == "linux" {
 		binPath = binPathLinux
-		installLocation = "/usr/bin/kubeswitch"
+		installLocation = "/usr/bin/kubectl"
 	} else if GOOS == "darwin" {
 		binPath = binPathMac
-		installLocation = "/usr/local/bin/kubeswitch"
+		installLocation = "/usr/local/bin/kubectl"
 	} else {
 		os.Exit(0)
 	}
@@ -112,8 +112,6 @@ func downloadFile(installDirectory string, versionWanted string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println(resp.Body)
 
 	n, err := io.Copy(out, resp.Body)
 	err = os.Chmod("kubectl", 755)
