@@ -13,22 +13,40 @@ import (
 	"strings"
 )
 
-//Generated with https://mholt.github.io/json-to-go/
+//Releases is enerated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"tag_name"`
 }
 
 const (
-	stableURL              = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
-	releaseURL             = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-	downloadURL            = "https://storage.googleapis.com/kubernetes-release/release/"
-	installLocation        = "/usr/local/bin/kubectl"
-	binPathLinux           = "/bin/linux/amd64/kubectl"
-	binPathMac             = "/bin/darwin/amd64/kubectl"
-	GOOS            string = runtime.GOOS
+	stableURL    = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+	releaseURL   = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+	downloadURL  = "https://storage.googleapis.com/kubernetes-release/release/"
+	binPathLinux = "/bin/linux/amd64/kubectl"
+	binPathMac   = "/bin/darwin/amd64/kubectl"
+
+	//GOOS is used to detect the OS used by the host
+	GOOS = runtime.GOOS
 )
 
+var binPath string
+var installLocation string
+
+func checkOS() {
+
+	if GOOS == "linux" {
+		binPath = binPathLinux
+		installLocation = "/usr/bin/kubeswitch"
+	} else if GOOS == "darwin" {
+		binPath = binPathMac
+		installLocation = "/usr/local/bin/kubeswitch"
+	} else {
+		os.Exit(0)
+	}
+}
+
 func main() {
+	checkOS()
 	fmt.Println("You're using OS: ", GOOS)
 	resp, err := http.Get(stableURL)
 
@@ -86,21 +104,8 @@ func getAllReleases() {
 }
 
 func downloadFile(installDirectory string, versionWanted string) {
-	var binPath string
-
-	if GOOS == "linux" {
-		binPath = binPathLinux
-	} else if GOOS == "darwin" {
-		binPath = binPathMac
-	} else {
-		os.Exit(0)
-	}
-
-	fmt.Println(binPath)
 
 	resp, err := http.Get(downloadURL + versionWanted + binPath)
-
-	fmt.Println(downloadURL + versionWanted + binPath)
 
 	out, err := os.Create("kubectl")
 
