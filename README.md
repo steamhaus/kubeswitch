@@ -14,5 +14,6 @@ $ chmod +x kubeswitch
 $ mv kubeswitch $PATH
 
 ```
+[![asciicast](https://asciinema.org/a/1FzS7oTJm4kTZhjFSEIb9Io9R.svg)](https://asciinema.org/a/1FzS7oTJm4kTZhjFSEIb9Io9R)
 
 ##### *Linux support added, freebsd support can be added if needs be*
