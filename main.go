@@ -17,32 +17,30 @@ import (
 
 //Releases is enerated with https://mholt.github.io/json-to-go/
 type Releases []struct {
-	TagName string `json:"tag_name"`
+	TagName string `json:"name"`
 }
 
 const (
-	stableURL    = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
-	releaseURL   = "https://api.github.com/repos/kubernetes/kubernetes/releases"
-	downloadURL  = "https://storage.googleapis.com/kubernetes-release/release/"
-	binPathLinux = "/bin/linux/amd64/kubectl"
-	binPathMac   = "/bin/darwin/amd64/kubectl"
+	stableURL       = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+	downloadURL     = "https://storage.googleapis.com/kubernetes-release/release/"
+	installLocation = "/usr/local/bin/kubectl"
+	binPathLinux    = "/bin/linux/amd64/kubectl"
+	binPathMac      = "/bin/darwin/amd64/kubectl"
 
 	//GOOS is used to detect the OS used by the host
 	GOOS = runtime.GOOS
 )
 
 var binPath string
-var installLocation string
 var versionToInstall string
 
 func checkOS() {
 
 	if GOOS == "linux" {
 		binPath = binPathLinux
-		installLocation = "/usr/bin/kubectl"
 	} else if GOOS == "darwin" {
 		binPath = binPathMac
-		installLocation = "/usr/local/bin/kubectl"
 	} else {
 		os.Exit(0)
 	}
