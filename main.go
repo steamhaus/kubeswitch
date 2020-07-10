@@ -42,7 +42,7 @@ func checkOS() {
 	} else if GOOS == "darwin" {
 		binPath = binPathMac
 	} else {
-		os.Exit(0)
+		os.Exit(1)
 	}
 }
 
@@ -92,12 +92,12 @@ func getStable() {
 	text, _ := reader.ReadString('\n')
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
-		fmt.Println("Downloading Kubernetes version: " + " " + result + " " + "to" + " " + installLocation)
+		fmt.Println("Downloading Kubernetes version: " + " " +  result + "to" + " " + installLocation)
 		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
 		downloadFile(installLocation, strings.TrimRight(result, "\n"))
 
 		fmt.Println("version" + " " + result + "has been installed")
-		os.Exit(1)
+		os.Exit(0)
 	} else {
 		getAllReleases()
 		fmt.Println("Which version would you like to install?")
