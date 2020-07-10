@@ -28,6 +28,6 @@ $ kubeswitch -v v1.x.z  // this installs your selected version, currently, if yo
 
 
 
-[![asciicast](https://asciinema.org/a/k53mLPM0UyjHGWzD1tiDP2YOD.svg)](https://asciinema.org/a/k53mLPM0UyjHGWzD1tiDP2YOD)
+[![asciicast](https://asciinema.org/a/qHmIcoVAScse9o0sGn2BFDZ11.svg)](https://asciinema.org/a/qHmIcoVAScse9o0sGn2BFDZ11)
 
 ##### *Linux support added, freebsd support can be added if needs be*
