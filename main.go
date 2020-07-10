@@ -52,7 +52,7 @@ func main() {
 	checkOS()
 	parser := argparse.NewParser("kubeswitch", "easily swap kubectl versions")
 
-	versionFlag := parser.String("v", "vers", &argparse.Options{Required: false, Help: "specifiy a version to download"})
+	versionFlag := parser.String("v", "version", &argparse.Options{Required: false, Help: "specifiy a version to download"})
 	versionToInstall = *versionFlag
 
 	// Maybe in the future there can be an acceptance check, but if we want this as part of an automated sequence it make senses to assume user input is always a correct version.
