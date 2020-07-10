@@ -11,6 +11,8 @@ import (
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/akamensky/argparse"
 )
 
 //Releases is enerated with https://mholt.github.io/json-to-go/
@@ -31,6 +33,7 @@ const (
 
 var binPath string
 var installLocation string
+var versionToInstall string
 
 func checkOS() {
 
@@ -47,7 +50,30 @@ func checkOS() {
 
 func main() {
 	checkOS()
-	fmt.Println("You're using OS: ", GOOS)
+	parser := argparse.NewParser("kubeswitch", "easily swap kubectl versions")
+
+	versionFlag := parser.String("v", "vers", &argparse.Options{Required: false, Help: "specifiy a version to download"})
+	versionToInstall = *versionFlag
+
+	// Maybe in the future there can be an acceptance check, but if we want this as part of an automated sequence it make senses to assume user input is always a correct version.
+	err := parser.Parse(os.Args)
+	if err != nil {
+		fmt.Println(parser.Usage(err))
+		return
+	}
+
+	if *versionFlag != "" {
+		fmt.Println("You've selected kubectl version: ", *versionFlag, "to install")
+		fmt.Println("Downloading kubectl version: ", *versionFlag, "to ", installLocation)
+		downloadFile(installLocation, *versionFlag)
+		fmt.Println(*versionFlag)
+	} else if *versionFlag == "" {
+		getStable()
+	}
+
+}
+
+func getStable() {
 	resp, err := http.Get(stableURL)
 
 	if err != nil {
@@ -64,7 +90,7 @@ func main() {
 
 	result := string(body)
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Latest stable release is:" + " " + result + "" + "Do you want to install this version?")
+	fmt.Println("Latest stable release is:" + " " + result + "" + "Do you want to install this version? [yes/no]")
 	text, _ := reader.ReadString('\n')
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
@@ -99,7 +125,7 @@ func getAllReleases() {
 	json.Unmarshal(body, &data)
 
 	//TODO: Work out how we can format this list better wit a new line after each result
-	fmt.Printf("Other releases available are: %s\n", data)
+	fmt.Printf("Other releases available are: %v\n", data)
 	defer resp.Body.Close()
 }
 

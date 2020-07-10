@@ -1,3 +1,5 @@
+github.com/akamensky/argparse v1.2.1 h1:YMYF1VMku+dnz7TVTJpYhsCXHSYCVMAIcKaBbjwbvZo=
+github.com/akamensky/argparse v1.2.1/go.mod h1:S5kwC7IuDcEr5VeXtGPRVZ5o/FdhcMlQz4IZQuw64xA=
 github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288 h1:cdM7et8/VlNnSBpq3KbyQWsYLCY0WsB7tvV8Fr0DUNE=
 github.com/matishsiao/goInfo v0.0.0-20200404012835-b5f882ee2288/go.mod h1:yLZrFIhv+Z20hxHvcZpEyKVQp9HMsOJkXAxx7yDqtvg=
 github.com/steamhaus/kubeswitch v0.0.0-20200707065246-9940977ab9a3 h1:XIsKLWoJpD7C2zeK9aU4iP706p1PoR8sB7ynNEFBzcQ=
