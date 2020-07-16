@@ -23,9 +23,14 @@ type Releases []struct {
 	TagName string `json:"name"`
 }
 
+type HelmReleases []struct {
+	TagName string `json:"tag_name"`
+}
+
 const (
 	stableURL       = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
-	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases"
+	releaseURLHelm  = "https://api.github.com/repos/helm/helm/releases?per_page=100"
+	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=50"
 	downloadURL     = "https://storage.googleapis.com/kubernetes-release/release/"
 	installLocation = "/usr/local/bin/kubectl"
 	binPathLinux    = "/bin/linux/amd64/kubectl"
@@ -57,6 +62,8 @@ func main() {
 
 	awsFlag := parser.Flag("a", "aws", &argparse.Options{Required: false, Help: "Check your AWS EKS/Kops version"})
 
+	helmFlag := parser.Flag("t", "helm", &argparse.Options{Required: false, Help: "Get helm version"})
+
 	// Maybe in the future there can be an acceptance check, but if we want this as part of an automated sequence it make senses to assume user input is always a correct version.
 	err := parser.Parse(os.Args)
 	if err != nil {
@@ -66,6 +73,10 @@ func main() {
 
 	if *awsFlag {
 		checkAWSAuth()
+	}
+
+	if *helmFlag {
+		getHelm()
 	}
 
 	if *versionFlag != "" {
@@ -180,5 +191,24 @@ func checkAWSAuth() {
 			os.Exit(0)
 		}
 	}
+
+}
+
+func getHelm() {
+	resp, err := http.Get(releaseURLHelm)
+
+	if err != nil {
+		fmt.Println("Cannot see all latest releaes", err, http.StatusInternalServerError)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Errorf("Read body: %v", err)
+	}
+	var data HelmReleases
+	json.Unmarshal(body, &data)
+
+	fmt.Printf("Helm releases available are: %v\n", data)
+	defer resp.Body.Close()
 
 }
