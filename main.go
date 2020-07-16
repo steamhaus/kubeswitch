@@ -50,18 +50,22 @@ func checkOS() {
 }
 
 func main() {
-	checkAWSAuth()
 	checkOS()
 	parser := argparse.NewParser("kubeswitch", "easily swap kubectl versions")
 
 	versionFlag := parser.String("v", "version", &argparse.Options{Required: false, Help: "specifiy a version to download"})
-	versionToInstall = *versionFlag
+
+	awsFlag := parser.Flag("a", "aws", &argparse.Options{Required: false, Help: "Check your AWS EKS/Kops version"})
 
 	// Maybe in the future there can be an acceptance check, but if we want this as part of an automated sequence it make senses to assume user input is always a correct version.
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Println(parser.Usage(err))
 		return
+	}
+
+	if *awsFlag {
+		checkAWSAuth()
 	}
 
 	if *versionFlag != "" {
@@ -159,13 +163,22 @@ func downloadFile(installDirectory string, versionWanted string) {
 func checkAWSAuth() {
 	creds := credentials.NewEnvCredentials()
 
-	credValue, err := creds.Get()
+	_, err := creds.Get()
 	if err != nil {
-		fmt.Println("No AWS credentials found", err)
+		fmt.Println("AWS Credentials not found or set. Skipping...")
 	} else {
 		out, _ := exec.Command("kubectl", "version", "--short").Output()
-		fmt.Println("Your EKS cluster version is: ", string(out))
-		fmt.Println(credValue)
+		verParse := string(out)
+		ver := verParse[40:47]
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Println("Your EKS cluster version is: ", ver, "- do you want to match your client version? [yes/no]")
+		text, _ := reader.ReadString('\n')
+		if strings.TrimRight(text, "\n") == "yes" {
+			downloadFile(installLocation, ver)
+			fmt.Println("Client and Server matched.")
+			os.Exit(0)
+		}
 	}
 
 }
