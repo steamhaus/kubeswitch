@@ -9,8 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
 
 	"github.com/akamensky/argparse"
 )
@@ -47,6 +50,7 @@ func checkOS() {
 }
 
 func main() {
+	checkAWSAuth()
 	checkOS()
 	parser := argparse.NewParser("kubeswitch", "easily swap kubectl versions")
 
@@ -92,7 +96,7 @@ func getStable() {
 	text, _ := reader.ReadString('\n')
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
-		fmt.Println("Downloading Kubernetes version: " + " " +  result + "to" + " " + installLocation)
+		fmt.Println("Downloading Kubernetes version: " + " " + result + "to" + " " + installLocation)
 		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
 		downloadFile(installLocation, strings.TrimRight(result, "\n"))
 
@@ -149,5 +153,19 @@ func downloadFile(installDirectory string, versionWanted string) {
 	}
 	defer out.Close()
 	defer resp.Body.Close()
+
+}
+
+func checkAWSAuth() {
+	creds := credentials.NewEnvCredentials()
+
+	credValue, err := creds.Get()
+	if err != nil {
+		fmt.Println("No AWS credentials found", err)
+	} else {
+		out, _ := exec.Command("kubectl", "version", "--short").Output()
+		fmt.Println("Your EKS cluster version is: ", string(out))
+		fmt.Println(credValue)
+	}
 
 }
