@@ -9,8 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
 
 	"github.com/akamensky/argparse"
 )
@@ -51,13 +54,18 @@ func main() {
 	parser := argparse.NewParser("kubeswitch", "easily swap kubectl versions")
 
 	versionFlag := parser.String("v", "version", &argparse.Options{Required: false, Help: "specifiy a version to download"})
-	versionToInstall = *versionFlag
+
+	awsFlag := parser.Flag("a", "aws", &argparse.Options{Required: false, Help: "Check your AWS EKS/Kops version"})
 
 	// Maybe in the future there can be an acceptance check, but if we want this as part of an automated sequence it make senses to assume user input is always a correct version.
 	err := parser.Parse(os.Args)
 	if err != nil {
 		fmt.Println(parser.Usage(err))
 		return
+	}
+
+	if *awsFlag {
+		checkAWSAuth()
 	}
 
 	if *versionFlag != "" {
@@ -92,7 +100,7 @@ func getStable() {
 	text, _ := reader.ReadString('\n')
 
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
-		fmt.Println("Downloading Kubernetes version: " + " " +  result + "to" + " " + installLocation)
+		fmt.Println("Downloading Kubernetes version: " + " " + result + "to" + " " + installLocation)
 		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
 		downloadFile(installLocation, strings.TrimRight(result, "\n"))
 
@@ -149,5 +157,28 @@ func downloadFile(installDirectory string, versionWanted string) {
 	}
 	defer out.Close()
 	defer resp.Body.Close()
+
+}
+
+func checkAWSAuth() {
+	creds := credentials.NewEnvCredentials()
+
+	_, err := creds.Get()
+	if err != nil {
+		fmt.Println("AWS Credentials not found or set. Skipping...")
+	} else {
+		out, _ := exec.Command("kubectl", "version", "--short").Output()
+		verParse := string(out)
+		ver := verParse[40:47]
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Println("Your EKS cluster version is: ", ver, "- do you want to match your client version? [yes/no]")
+		text, _ := reader.ReadString('\n')
+		if strings.TrimRight(text, "\n") == "yes" {
+			downloadFile(installLocation, ver)
+			fmt.Println("Client and Server matched.")
+			os.Exit(0)
+		}
+	}
 
 }
