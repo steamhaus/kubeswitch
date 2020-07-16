@@ -33,6 +33,11 @@ $ kubeswitch -v/ --version v1.x.z
 $ kubeswitch -a / --aws 
 ```
 
+#### [WIP] Get helm versions available install. (-t isn't a typo, T for tiller)
+```
+$ kubeswitch -t / --helm 
+```
+
 
 
 
