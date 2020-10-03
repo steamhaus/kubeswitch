@@ -1,7 +1,6 @@
 package main
 
 import (
-	"archive/zip"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -11,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -20,28 +18,23 @@ import (
 	"github.com/akamensky/argparse"
 )
 
-//Releases for Kubernetes follow the name tag
+//Releases is enerated with https://mholt.github.io/json-to-go/
 type Releases []struct {
 	TagName string `json:"name"`
 }
 
-//HelmReleases for Helm follow the tag_name tag
 type HelmReleases []struct {
 	TagName string `json:"tag_name"`
 }
 
 const (
-	stableURL           = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
-	releaseURLHelm      = "https://api.github.com/repos/helm/helm/releases?per_page=10"
-	releaseURL          = "https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=50"
-	downloadURLKube     = "https://storage.googleapis.com/kubernetes-release/release/"
-	downloadURLHelm     = "https://get.helm.sh/helm-"
-	installLocation     = "/usr/local/bin/kubectl"
-	installLocationHelm = "/usr/local/bin/helm"
-	binPathLinux        = "/bin/linux/amd64/kubectl"
-	binPathMac          = "/bin/darwin/amd64/kubectl"
-	helmZipLinux        = "-linux-amd64.tar.gz"
-	helmZipMac          = "-darwin-amd64.tar.gz"
+	stableURL       = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
+	releaseURLHelm  = "https://api.github.com/repos/helm/helm/releases?per_page=100"
+	releaseURL      = "https://api.github.com/repos/kubernetes/kubernetes/releases?per_page=50"
+	downloadURL     = "https://storage.googleapis.com/kubernetes-release/release/"
+	installLocation = "/usr/local/bin/kubectl"
+	binPathLinux    = "/bin/linux/amd64/kubectl"
+	binPathMac      = "/bin/darwin/amd64/kubectl"
 
 	//GOOS is used to detect the OS used by the host
 	GOOS = runtime.GOOS
@@ -49,17 +42,13 @@ const (
 
 var binPath string
 var versionToInstall string
-var zipPath string
-var downloadURL string
 
 func checkOS() {
 
 	if GOOS == "linux" {
 		binPath = binPathLinux
-		zipPath = helmZipLinux
 	} else if GOOS == "darwin" {
 		binPath = binPathMac
-		zipPath = helmZipMac
 	} else {
 		os.Exit(1)
 	}
@@ -88,13 +77,12 @@ func main() {
 
 	if *helmFlag {
 		getHelm()
-		os.Exit(0)
 	}
 
 	if *versionFlag != "" {
 		fmt.Println("You've selected kubectl version: ", *versionFlag, "to install")
 		fmt.Println("Downloading kubectl version: ", *versionFlag, "to ", installLocation)
-		downloadFile(installLocation, *versionFlag, "kubectl")
+		downloadFile(installLocation, *versionFlag)
 		fmt.Println(*versionFlag)
 	} else if *versionFlag == "" {
 		getStable()
@@ -125,7 +113,7 @@ func getStable() {
 	if strings.TrimRight(text, "\n") == "yes" || strings.TrimRight(text, "\n") == "y" {
 		fmt.Println("Downloading Kubernetes version: " + " " + result + "to" + " " + installLocation)
 		// There is a bug somewhere appending a new line to the result, causing a nil pointer reference
-		downloadFile(installLocation, strings.TrimRight(result, "\n"), "kubectl")
+		downloadFile(installLocation, strings.TrimRight(result, "\n"))
 
 		fmt.Println("version" + " " + result + "has been installed")
 		os.Exit(0)
@@ -134,7 +122,7 @@ func getStable() {
 		fmt.Println("Which version would you like to install?")
 		versionInput, _ := reader.ReadString('\n')
 		versionWanted := strings.TrimRight(versionInput, "\n")
-		downloadFile(installLocation, versionWanted, "kubectl")
+		downloadFile(installLocation, versionWanted)
 		fmt.Println("Downloading Kubernetes version....", versionWanted, "....to", installLocation)
 	}
 }
@@ -158,49 +146,28 @@ func getAllReleases() {
 	defer resp.Body.Close()
 }
 
-func downloadFile(installDirectory string, versionWanted string, app string) {
+func downloadFile(installDirectory string, versionWanted string, app ) {
 
-	if app == "helm" {
-		downloadURL = downloadURLHelm + versionWanted + zipPath
-		fmt.Println(downloadURL)
-	} else if app == "kubectl" {
-		downloadURL = downloadURLKube + versionWanted + binPath
-	}
+	resp, err := http.Get(downloadURL + versionWanted + binPath)
 
-	resp, err := http.Get(downloadURL)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(resp)
-	defer resp.Body.Close()
-
-	file, err := Unzip("helm-"+versionWanted+zipPath, ".")
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("Files downloaded for helm:\n", file)
-
-	out, err := os.Create(app)
+	out, err := os.Create("kubectl")
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	n, err := io.Copy(out, resp.Body)
-	err = os.Chmod(app, 755)
+	err = os.Chmod("kubectl", 755)
 	if err != nil {
 		fmt.Println(err, n)
 	}
 
-	x := os.Rename(app, installDirectory)
+	x := os.Rename("kubectl", installLocation)
 	if x != nil {
 		fmt.Println(x)
 	}
 	defer out.Close()
+	defer resp.Body.Close()
 
 }
 
@@ -219,7 +186,7 @@ func checkAWSAuth() {
 		fmt.Println("Your EKS cluster version is: ", ver, "- do you want to match your client version? [yes/no]")
 		text, _ := reader.ReadString('\n')
 		if strings.TrimRight(text, "\n") == "yes" {
-			downloadFile(installLocation, ver, "kubectl")
+			downloadFile(installLocation, ver)
 			fmt.Println("Client and Server matched.")
 			os.Exit(0)
 		}
@@ -228,7 +195,6 @@ func checkAWSAuth() {
 }
 
 func getHelm() {
-	reader := bufio.NewReader(os.Stdin)
 	resp, err := http.Get(releaseURLHelm)
 
 	if err != nil {
@@ -245,65 +211,4 @@ func getHelm() {
 	fmt.Printf("Helm releases available are: %v\n", data)
 	defer resp.Body.Close()
 
-	fmt.Println("Which version of Helm would you like to install?")
-	versionInput, _ := reader.ReadString('\n')
-	versionWanted := strings.TrimRight(versionInput, "\n")
-	downloadFile(installLocationHelm, versionWanted, "helm")
-	fmt.Println("Downloading Helm version....", versionWanted, "....to", installLocationHelm)
-}
-
-func Unzip(src string, dest string) ([]string, error) {
-
-	var filenames []string
-
-	r, err := zip.OpenReader(src)
-	if err != nil {
-		return filenames, err
-	}
-	defer r.Close()
-
-	for _, f := range r.File {
-
-		// Store filename/path for returning and using later on
-		fpath := filepath.Join(dest, f.Name)
-
-		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
-		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return filenames, fmt.Errorf("%s: illegal file path", fpath)
-		}
-
-		filenames = append(filenames, fpath)
-
-		if f.FileInfo().IsDir() {
-			// Make Folder
-			os.MkdirAll(fpath, os.ModePerm)
-			continue
-		}
-
-		// Make File
-		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return filenames, err
-		}
-
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return filenames, err
-		}
-
-		rc, err := f.Open()
-		if err != nil {
-			return filenames, err
-		}
-
-		_, err = io.Copy(outFile, rc)
-
-		// Close the file without defer to close before next iteration of loop
-		outFile.Close()
-		rc.Close()
-
-		if err != nil {
-			return filenames, err
-		}
-	}
-	return filenames, nil
 }

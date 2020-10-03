@@ -176,6 +176,8 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 	fmt.Println(resp)
 	defer resp.Body.Close()
 
+	out, err := os.Create(app)
+
 	file, err := Unzip("helm-"+versionWanted+zipPath, ".")
 
 	if err != nil {

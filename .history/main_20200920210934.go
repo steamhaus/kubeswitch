@@ -201,6 +201,7 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 		fmt.Println(x)
 	}
 	defer out.Close()
+	defer resp.Body.Close()
 
 }
 

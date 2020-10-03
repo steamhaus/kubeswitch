@@ -176,6 +176,8 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 	fmt.Println(resp)
 	defer resp.Body.Close()
 
+	out, err := os.Create("helm-" + versionWanted + zipPath)
+
 	file, err := Unzip("helm-"+versionWanted+zipPath, ".")
 
 	if err != nil {
@@ -184,7 +186,7 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 
 	fmt.Println("Files downloaded for helm:\n", file)
 
-	out, err := os.Create(app)
+	out := os.Create(app)
 
 	if err != nil {
 		fmt.Println(err)

@@ -184,7 +184,7 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 
 	fmt.Println("Files downloaded for helm:\n", file)
 
-	out, err := os.Create(app)
+	//out = os.Create(app)
 
 	if err != nil {
 		fmt.Println(err)

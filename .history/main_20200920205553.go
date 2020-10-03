@@ -1,7 +1,7 @@
 package main
 
 import (
-	"archive/zip"
+	"archive/tar"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -167,20 +167,12 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 		downloadURL = downloadURLKube + versionWanted + binPath
 	}
 
-	resp, err := http.Get(downloadURL)
-
+	resp, err := http.Get(downloadURL + versionWanted + binPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(resp)
-	defer resp.Body.Close()
-
-	file, err := Unzip("helm-"+versionWanted+zipPath, ".")
-
-	if err != nil {
-		fmt.Println(err)
-	}
+	file := Untar("helm-"+versionWanted+zipPath, " .")
 
 	fmt.Println("Files downloaded for helm:\n", file)
 
@@ -201,6 +193,7 @@ func downloadFile(installDirectory string, versionWanted string, app string) {
 		fmt.Println(x)
 	}
 	defer out.Close()
+	defer resp.Body.Close()
 
 }
 
@@ -252,58 +245,40 @@ func getHelm() {
 	fmt.Println("Downloading Helm version....", versionWanted, "....to", installLocationHelm)
 }
 
-func Unzip(src string, dest string) ([]string, error) {
-
-	var filenames []string
-
-	r, err := zip.OpenReader(src)
+func Untar(tarball, target string) error {
+	reader, err := os.Open(tarball)
 	if err != nil {
-		return filenames, err
+		return err
 	}
-	defer r.Close()
+	defer reader.Close()
+	tarReader := tar.NewReader(reader)
 
-	for _, f := range r.File {
-
-		// Store filename/path for returning and using later on
-		fpath := filepath.Join(dest, f.Name)
-
-		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
-		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return filenames, fmt.Errorf("%s: illegal file path", fpath)
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err
 		}
 
-		filenames = append(filenames, fpath)
-
-		if f.FileInfo().IsDir() {
-			// Make Folder
-			os.MkdirAll(fpath, os.ModePerm)
+		path := filepath.Join(target, header.Name)
+		info := header.FileInfo()
+		if info.IsDir() {
+			if err = os.MkdirAll(path, info.Mode()); err != nil {
+				return err
+			}
 			continue
 		}
 
-		// Make File
-		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return filenames, err
-		}
-
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
 		if err != nil {
-			return filenames, err
+			return err
 		}
-
-		rc, err := f.Open()
+		defer file.Close()
+		_, err = io.Copy(file, tarReader)
 		if err != nil {
-			return filenames, err
-		}
-
-		_, err = io.Copy(outFile, rc)
-
-		// Close the file without defer to close before next iteration of loop
-		outFile.Close()
-		rc.Close()
-
-		if err != nil {
-			return filenames, err
+			return err
 		}
 	}
-	return filenames, nil
+	return nil
 }
